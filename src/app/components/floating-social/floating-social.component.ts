@@ -1,8 +1,9 @@
-import { Component, OnInit, Renderer2, ElementRef } from '@angular/core';
+import { Component, OnInit, Renderer2, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-floating-social',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './floating-social.component.html',
   styleUrl: './floating-social.component.scss'
@@ -26,6 +27,14 @@ export class FloatingSocialComponent implements OnInit {
 
   toggleSocialLinks() {
     this.isExpanded = !this.isExpanded;
+  }
+
+  expandSocialLinks() {
+    this.isExpanded = true;
+  }
+
+  collapseSocialLinks() {
+    this.isExpanded = false;
   }
 
   startDrag(event: MouseEvent | TouchEvent) {
@@ -87,5 +96,25 @@ export class FloatingSocialComponent implements OnInit {
       y: window.innerHeight - rect.bottom
     };
     localStorage.setItem('floatingSocialPosition', JSON.stringify(position));
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event) {
+    // Center the icon on small screens
+    const container = this.el.nativeElement.querySelector('.floating-social-container');
+    if (window.innerWidth <= 768) {
+      this.renderer.setStyle(container, 'left', '50%');
+      this.renderer.setStyle(container, 'right', 'auto');
+      this.renderer.setStyle(container, 'transform', 'translateX(-50%)');
+    } else {
+      this.renderer.setStyle(container, 'transform', 'none');
+      // Restore saved position if available
+      const savedPosition = localStorage.getItem('floatingSocialPosition');
+      if (savedPosition) {
+        const position = JSON.parse(savedPosition);
+        this.renderer.setStyle(container, 'right', `${position.x}px`);
+        this.renderer.setStyle(container, 'bottom', `${position.y}px`);
+      }
+    }
   }
 }
