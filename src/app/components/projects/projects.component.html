@@ -1,0 +1,75 @@
+<section class="projects">
+  <div class="projects-header">
+    <h2>My Projects</h2>
+    <div class="header-underline"></div>
+  </div>
+  
+  <!-- Filter Buttons -->
+  <div class="filter-buttons">
+    <button 
+      class="filter-btn" 
+      [class.active]="currentFilter === 'all'" 
+      (click)="setFilter('all')">All Projects</button>
+    <button 
+      class="filter-btn" 
+      [class.active]="currentFilter === 'mean'" 
+      (click)="setFilter('mean')">MEAN Stack</button>
+    <button 
+      class="filter-btn" 
+      [class.active]="currentFilter === 'frontend'" 
+      (click)="setFilter('frontend')">Frontend</button>
+  </div>
+  
+  <!-- Project Grid -->
+  <div class="project-grid">
+    <!-- All Projects -->
+     @for (project of filteredProjects; track project.id) {
+      <div class="project-card">
+        <div class="image-container">
+          @if (project.img) {
+            <img [src]="'/' + project.img" [alt]='project.title' class="project-image">
+          } @else {
+            <div class="placeholder-image">
+              <span>No Image</span>
+            </div>
+          }
+        </div>
+        
+        <div class="card-content">
+          <div class="card-header">
+            <div class="title-category-container">
+              <h3 class="project-title">{{ project.title }}</h3>
+              <span class="project-category">{{ project.category === 'mean' ? 'Full Stack' : 'Frontend' }}</span>
+            </div>
+          </div>
+          
+          <p class="project-description">{{ project.description }}</p>
+          
+          <div class="tools-container" *ngIf="project.tools && project.tools.length > 0">
+            <h4>Technologies:</h4>
+            <div class="tool-icons">
+              @for (tool of project.tools.slice(0, 8); track tool) {
+                <span class="tool-icon" [title]="tool">
+                  <i [class]="getToolIconClass(tool)"></i>
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+        
+        <div class="card-footer">
+          <a href="{{ project.github }}" target="_blank" class="btn btn-github">
+            <i class="fab fa-github"></i>
+            GitHub
+          </a> 
+          @if (project.live) {
+            <a href="{{ project.live }}" target="_blank" class="btn btn-live">
+              <i class="fas fa-external-link-alt"></i>
+              Live Demo
+            </a>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</section>

@@ -1,0 +1,109 @@
+<section class="contact">
+  <div class="contact-header">
+    <h2>Get In Touch</h2>
+    <div class="header-underline"></div>
+    <p class="contact-subtitle">Feel free to reach out if you want to collaborate with me, or simply have a chat.</p>
+  </div>
+  
+  <div class="contact-container">
+    <div class="contact-info-card">
+      <h3>Contact Information</h3>
+      <p class="info-subtitle">Let's Connect</p>
+      
+      <div class="contact-details">
+        <div class="contact-item">
+          <div class="icon-container">
+            <i class="fas fa-envelope"></i>
+          </div>
+          <div class="contact-text">
+            <strong>Email</strong>
+            <span>bdhm28191&#64;gmail.com</span>
+          </div>
+        </div>
+        
+        <div class="contact-item">
+          <div class="icon-container">
+            <i class="fas fa-phone"></i>
+          </div>
+          <div class="contact-text">
+            <strong>Phone</strong>
+            <span>01080631972</span>
+          </div>
+        </div>
+        
+        <div class="contact-item">
+          <div class="icon-container">
+            <i class="fas fa-map-marker-alt"></i>
+          </div>
+          <div class="contact-text">
+            <strong>Location</strong>
+            <span>Cairo, Egypt</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="contact-form-card">
+      <h3>Send Me a Message</h3>
+      <p class="form-subtitle">I'll get back to you soon</p>
+      
+      <form class="contact-form" (ngSubmit)="onSubmit()" #contactForm="ngForm">
+        <div class="form-group">
+          <input 
+            type="text" 
+            placeholder="Your Name *" 
+            required 
+            name="name" 
+            [(ngModel)]="contactData.name" 
+            id="name"
+            class="form-control">
+        </div>
+        
+        <div class="form-group">
+          <input 
+            type="email" 
+            placeholder="Your Email *" 
+            required 
+            name="email" 
+            [(ngModel)]="contactData.email" 
+            id="email"
+            class="form-control">
+        </div>
+        
+        <div class="form-group">
+          <input 
+            type="text" 
+            placeholder="Subject" 
+            name="subject" 
+            [(ngModel)]="contactData.subject" 
+            id="subject"
+            class="form-control">
+        </div>
+        
+        <div class="form-group">
+          <textarea 
+            placeholder="Your Message *" 
+            rows="6" 
+            required 
+            name="message" 
+            [(ngModel)]="contactData.message" 
+            id="message"
+            class="form-control textarea"></textarea>
+        </div>
+        
+        <button 
+          type="submit" 
+          class="submit-button" 
+          [disabled]="isSubmitting">
+          <span *ngIf="!isSubmitting">Send Message</span>
+          <span *ngIf="isSubmitting">Sending...</span>
+          <i class="fas fa-paper-plane"></i>
+        </button>
+        
+        <div class="form-message" *ngIf="submitMessage" [ngClass]="{'success': isSubmitSuccess, 'error': !isSubmitSuccess}">
+          {{ submitMessage }}
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
