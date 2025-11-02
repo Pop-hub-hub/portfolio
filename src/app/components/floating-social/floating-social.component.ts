@@ -25,19 +25,32 @@ export class FloatingSocialComponent implements OnInit {
     }
   }
 
-  toggleSocialLinks() {
+  toggleSocialLinks(event?: Event) {
+    // Prevent default only if it's a touch event to avoid interfering with drag
+    if (event && this.isDragging) {
+      event.preventDefault();
+      return;
+    }
+    
     this.isExpanded = !this.isExpanded;
   }
 
   expandSocialLinks() {
-    this.isExpanded = true;
+    // Only expand if not dragging
+    if (!this.isDragging) {
+      this.isExpanded = true;
+    }
   }
 
   collapseSocialLinks() {
-    this.isExpanded = false;
+    // Only collapse if not dragging
+    if (!this.isDragging) {
+      this.isExpanded = false;
+    }
   }
 
   startDrag(event: MouseEvent | TouchEvent) {
+    // Prevent expanding when starting to drag
     if (event instanceof MouseEvent && event.button !== 0) return; // Only left mouse button
     
     this.isDragging = true;
@@ -57,6 +70,7 @@ export class FloatingSocialComponent implements OnInit {
     this.renderer.listen('document', 'mouseup', this.stopDrag.bind(this));
     this.renderer.listen('document', 'touchend', this.stopDrag.bind(this));
     
+    // Prevent default to avoid triggering other events
     event.preventDefault();
   }
 
