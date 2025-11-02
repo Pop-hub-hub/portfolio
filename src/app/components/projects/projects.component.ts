@@ -14,6 +14,7 @@ interface Project {
 
 @Component({
   selector: 'app-projects',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './projects.component.html',
   styleUrl: './projects.component.scss'

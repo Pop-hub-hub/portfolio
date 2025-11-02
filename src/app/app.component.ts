@@ -6,6 +6,7 @@ import { FloatingSocialComponent } from './components/floating-social/floating-s
 
 @Component({
   selector: 'app-root',
+  standalone: true,
   imports: [RouterOutlet, NavbarComponent, FooterComponent, FloatingSocialComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'

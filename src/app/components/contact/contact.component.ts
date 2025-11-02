@@ -11,6 +11,7 @@ interface ContactData {
 
 @Component({
   selector: 'app-contact',
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './contact.component.html',
   styleUrl: './contact.component.scss'
