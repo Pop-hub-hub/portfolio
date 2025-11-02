@@ -1,6 +1,6 @@
 <div
   class="floating-social-container"
-  [class.expanded]="isExpanded"
+  [ngClass]="{ expanded: isExpanded }"
   (mousedown)="startDrag($event)"
   (touchstart)="startDrag($event)"
   (mouseenter)="expandSocialLinks()"
@@ -9,42 +9,42 @@
   <div
     class="floating-button"
     (click)="toggleSocialLinks()"
+    (touchstart)="toggleSocialLinks()"
     tabindex="0"
     (keydown.enter)="toggleSocialLinks()"
     (keydown.space)="toggleSocialLinks()"
   >
-    @if (!isExpanded) {
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <path
-          d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"
-        ></path>
-      </svg>
-    } @else {
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-      </svg>
-    }
+    <svg
+      *ngIf="!isExpanded"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path
+        d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"
+      ></path>
+    </svg>
+    <svg
+      *ngIf="isExpanded"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
   </div>
 
   <div class="social-links-container">
@@ -70,7 +70,6 @@
         ></path>
       </svg>
     </a>
-
     <a
       href="https://www.linkedin.com/in/abdalrhman-mostafa12"
       target="_blank"
@@ -95,7 +94,6 @@
         <circle cx="4" cy="4" r="2"></circle>
       </svg>
     </a>
-
     <a
       href="https://wa.me/201080631972"
       class="social-link"
