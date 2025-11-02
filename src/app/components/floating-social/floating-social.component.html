@@ -9,7 +9,7 @@
   <div
     class="floating-button"
     (click)="toggleSocialLinks()"
-    (touchstart)="toggleSocialLinks()"
+    (touchstart)="onButtonTouchStart($event)"
     tabindex="0"
     (keydown.enter)="toggleSocialLinks()"
     (keydown.space)="toggleSocialLinks()"
@@ -53,6 +53,7 @@
       target="_blank"
       class="social-link"
       aria-label="GitHub"
+      (click)="onSocialLinkClick($event)"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -75,6 +76,7 @@
       target="_blank"
       class="social-link"
       aria-label="LinkedIn"
+      (click)="onSocialLinkClick($event)"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -99,6 +101,7 @@
       class="social-link"
       aria-label="WhatsApp"
       target="_blank"
+      (click)="onSocialLinkClick($event)"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
