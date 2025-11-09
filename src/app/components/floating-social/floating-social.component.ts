@@ -11,8 +11,11 @@ import { CommonModule } from '@angular/common';
 export class FloatingSocialComponent implements OnInit {
   private isDragging = false;
   private dragOffset = { x: 0, y: 0 };
+  private touchStartX = 0;
+  private touchStartY = 0;
   private touchStartTime = 0;
-  private isButtonTouched = false;
+  private readonly TOUCH_THRESHOLD = 5; // pixels
+  private readonly TAP_THRESHOLD = 200; // milliseconds
 
   constructor(private renderer: Renderer2, private el: ElementRef) {}
 
@@ -27,90 +30,107 @@ export class FloatingSocialComponent implements OnInit {
   }
 
   onWhatsAppClick(event: Event) {
-    // Allow the link to open normally
-    const link = event.currentTarget as HTMLAnchorElement;
-    window.open(link.href, link.target || '_self');
-  }
-
-  onButtonTouchStart(event: TouchEvent) {
-    this.isButtonTouched = true;
-    this.touchStartTime = Date.now();
-    // Don't prevent default here to allow for both touch and drag detection
+    // Only open link if not dragging
+    if (!this.isDragging) {
+      const link = event.currentTarget as HTMLAnchorElement;
+      window.open(link.href, link.target || '_self');
+    }
   }
 
   startDrag(event: MouseEvent | TouchEvent) {
-    // For touch events, check if it's a quick tap or a drag
-    if (event instanceof TouchEvent) {
-      const touchDuration = Date.now() - this.touchStartTime;
-      // If it's a quick tap (less than 200ms) and on the button, treat it as a click
-      if (this.isButtonTouched && touchDuration < 200) {
-        this.isButtonTouched = false;
-        event.preventDefault();
-        return;
-      }
-      this.isButtonTouched = false;
+    // Record initial touch position and time
+    if (event instanceof TouchEvent && event.touches.length > 0) {
+      this.touchStartX = event.touches[0].clientX;
+      this.touchStartY = event.touches[0].clientY;
+      this.touchStartTime = Date.now();
+    } else if (event instanceof MouseEvent) {
+      this.touchStartX = event.clientX;
+      this.touchStartY = event.clientY;
+      this.touchStartTime = Date.now();
     }
-    
+
     // Prevent expanding when starting to drag
     if (event instanceof MouseEvent && event.button !== 0) return; // Only left mouse button
-    
-    this.isDragging = true;
+
+    this.isDragging = false; // Reset dragging state
     const container = this.el.nativeElement.querySelector('.floating-social-container');
     const rect = container.getBoundingClientRect();
-    
+
     if (event instanceof MouseEvent) {
       this.dragOffset.x = event.clientX - rect.left;
       this.dragOffset.y = event.clientY - rect.top;
-    } else if (event instanceof TouchEvent) {
+    } else if (event instanceof TouchEvent && event.touches.length > 0) {
       this.dragOffset.x = event.touches[0].clientX - rect.left;
       this.dragOffset.y = event.touches[0].clientY - rect.top;
     }
-    
+
+    // Add event listeners for drag and stop
     this.renderer.listen('document', 'mousemove', this.onDrag.bind(this));
-    this.renderer.listen('document', 'touchmove', this.onDrag.bind(this));
+    this.renderer.listen('document', 'touchmove', this.onDrag.bind(this), { passive: false });
     this.renderer.listen('document', 'mouseup', this.stopDrag.bind(this));
     this.renderer.listen('document', 'touchend', this.stopDrag.bind(this));
-    
+
     // Prevent default to avoid triggering other events
     event.preventDefault();
   }
 
   onDrag(event: MouseEvent | TouchEvent) {
-    if (!this.isDragging) return;
-    
-    const container = this.el.nativeElement.querySelector('.floating-social-container');
-    const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
-    const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
-    
-    const x = clientX - this.dragOffset.x;
-    const y = clientY - this.dragOffset.y;
-    
-    // Constrain to viewport
-    const maxX = window.innerWidth - container.offsetWidth;
-    const maxY = window.innerHeight - container.offsetHeight;
-    
-    const constrainedX = Math.max(0, Math.min(x, maxX));
-    const constrainedY = Math.max(0, Math.min(y, maxY));
-    
-    this.renderer.setStyle(container, 'left', `${constrainedX}px`);
-    this.renderer.setStyle(container, 'top', `${constrainedY}px`);
-    this.renderer.setStyle(container, 'right', 'auto');
-    this.renderer.setStyle(container, 'bottom', 'auto');
+    const clientX = event instanceof MouseEvent ? event.clientX : 
+                   event.touches.length > 0 ? event.touches[0].clientX : this.touchStartX;
+    const clientY = event instanceof MouseEvent ? event.clientY : 
+                   event.touches.length > 0 ? event.touches[0].clientY : this.touchStartY;
+
+    // Calculate distance moved
+    const deltaX = Math.abs(clientX - this.touchStartX);
+    const deltaY = Math.abs(clientY - this.touchStartY);
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    const timeElapsed = Date.now() - this.touchStartTime;
+
+    // Determine if this is a drag (moved beyond threshold or took enough time)
+    if (!this.isDragging && (distance > this.TOUCH_THRESHOLD || timeElapsed > this.TAP_THRESHOLD)) {
+      this.isDragging = true;
+    }
+
+    // If dragging, update position
+    if (this.isDragging) {
+      const container = this.el.nativeElement.querySelector('.floating-social-container');
+      const x = clientX - this.dragOffset.x;
+      const y = clientY - this.dragOffset.y;
+
+      // Constrain to viewport
+      const maxX = window.innerWidth - container.offsetWidth;
+      const maxY = window.innerHeight - container.offsetHeight;
+
+      const constrainedX = Math.max(0, Math.min(x, maxX));
+      const constrainedY = Math.max(0, Math.min(y, maxY));
+
+      this.renderer.setStyle(container, 'left', `${constrainedX}px`);
+      this.renderer.setStyle(container, 'top', `${constrainedY}px`);
+      this.renderer.setStyle(container, 'right', 'auto');
+      this.renderer.setStyle(container, 'bottom', 'auto');
+
+      // Prevent scrolling on touch devices during drag
+      if (event instanceof TouchEvent) {
+        event.preventDefault();
+      }
+    }
   }
 
   stopDrag() {
-    if (!this.isDragging) return;
-    
+    // Save position to localStorage if we were dragging
+    if (this.isDragging) {
+      const container = this.el.nativeElement.querySelector('.floating-social-container');
+      const rect = container.getBoundingClientRect();
+      const position = {
+        x: rect.left,
+        y: window.innerHeight - rect.bottom
+      };
+      localStorage.setItem('floatingSocialPosition', JSON.stringify(position));
+    }
+
+    // Reset state
     this.isDragging = false;
-    
-    // Save position to localStorage
-    const container = this.el.nativeElement.querySelector('.floating-social-container');
-    const rect = container.getBoundingClientRect();
-    const position = {
-      x: rect.left,
-      y: window.innerHeight - rect.bottom
-    };
-    localStorage.setItem('floatingSocialPosition', JSON.stringify(position));
+    this.touchStartTime = 0;
   }
 
   @HostListener('window:resize', ['$event'])
