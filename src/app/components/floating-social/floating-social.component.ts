@@ -9,7 +9,6 @@ import { CommonModule } from '@angular/common';
   styleUrl: './floating-social.component.scss'
 })
 export class FloatingSocialComponent implements OnInit {
-  isExpanded = false;
   private isDragging = false;
   private dragOffset = { x: 0, y: 0 };
   private touchStartTime = 0;
@@ -27,28 +26,10 @@ export class FloatingSocialComponent implements OnInit {
     }
   }
 
-  toggleSocialLinks(event?: Event) {
-    // Prevent default only if it's a touch event to avoid interfering with drag
-    if (event && this.isDragging) {
-      event.preventDefault();
-      return;
-    }
-    
-    this.isExpanded = !this.isExpanded;
-  }
-
-  expandSocialLinks() {
-    // Only expand if not dragging
-    if (!this.isDragging) {
-      this.isExpanded = true;
-    }
-  }
-
-  collapseSocialLinks() {
-    // Only collapse if not dragging
-    if (!this.isDragging) {
-      this.isExpanded = false;
-    }
+  onWhatsAppClick(event: Event) {
+    // Allow the link to open normally
+    const link = event.currentTarget as HTMLAnchorElement;
+    window.open(link.href, link.target || '_self');
   }
 
   onButtonTouchStart(event: TouchEvent) {
@@ -57,19 +38,12 @@ export class FloatingSocialComponent implements OnInit {
     // Don't prevent default here to allow for both touch and drag detection
   }
 
-  onSocialLinkClick(event: Event) {
-    // Allow the link to open normally
-    const link = event.currentTarget as HTMLAnchorElement;
-    window.open(link.href, link.target || '_self');
-  }
-
   startDrag(event: MouseEvent | TouchEvent) {
     // For touch events, check if it's a quick tap or a drag
     if (event instanceof TouchEvent) {
       const touchDuration = Date.now() - this.touchStartTime;
       // If it's a quick tap (less than 200ms) and on the button, treat it as a click
       if (this.isButtonTouched && touchDuration < 200) {
-        this.toggleSocialLinks();
         this.isButtonTouched = false;
         event.preventDefault();
         return;
@@ -159,4 +133,3 @@ export class FloatingSocialComponent implements OnInit {
     }
   }
 }
-
